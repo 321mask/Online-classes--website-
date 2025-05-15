@@ -1,7 +1,29 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
+import { Bar, Pie } from "vue-chartjs";
 import { useLoggedUserStore } from "../store/loggedUser";
+
+// Register chart.js components
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  ArcElement,
+  CategoryScale,
+  LinearScale
+);
 
 const totalUsers = ref(0);
 const validatedUsers = ref(0);
@@ -41,6 +63,44 @@ const fetchStats = async () => {
   }
 };
 
+// Chart.js data and config
+const barChartData = computed(() => ({
+  labels: ["Users", "Validated", "Courses", "Quizzes"],
+  datasets: [
+    {
+      label: "Platform Stats",
+      data: [
+        totalUsers.value,
+        validatedUsers.value,
+        totalCourses.value,
+        totalQuizzes.value,
+      ],
+      backgroundColor: ["#4caf50", "#2196f3", "#ff9800", "#e91e63"],
+    },
+  ],
+}));
+
+const pieChartData = computed(() => ({
+  labels: ["Validated Users", "Non-validated Users"],
+  datasets: [
+    {
+      data: [validatedUsers.value, totalUsers.value - validatedUsers.value],
+      backgroundColor: ["#4caf50", "#f44336"],
+    },
+  ],
+}));
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+};
+
+const successRate = computed(() => {
+  return totalUsers.value
+    ? Math.round((validatedUsers.value / totalUsers.value) * 100)
+    : 0;
+});
+
 onMounted(fetchStats);
 </script>
 
@@ -64,6 +124,18 @@ onMounted(fetchStats);
         <h3>Total Quizzes</h3>
         <p>{{ totalQuizzes }}</p>
       </div>
+      <div class="stat-card">
+        <h3>Taux de Réussite</h3>
+        <p>{{ successRate }}%</p>
+      </div>
+    </div>
+    <div class="charts">
+      <div class="chart-box">
+        <Bar :data="barChartData" :options="chartOptions" />
+      </div>
+      <div class="chart-box">
+        <Pie :data="pieChartData" :options="chartOptions" />
+      </div>
     </div>
   </div>
 </template>
@@ -73,6 +145,18 @@ onMounted(fetchStats);
   max-width: 1000px;
   margin: 2rem auto;
   padding: 2rem;
+}
+.charts {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.chart-box {
+  width: 400px;
+  height: 300px;
 }
 
 h2 {
