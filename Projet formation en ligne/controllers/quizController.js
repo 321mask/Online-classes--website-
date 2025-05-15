@@ -3,6 +3,7 @@ import Answer from "../models/Answer.js";
 import { io } from "../server.js";
 import User from "../models/User.js";
 import Feedback from "../models/feedback.js";
+import Certificate from "../models/certificate.js";
 
 // Get all quizzes
 export const getQuizzes = async (req, res) => {
@@ -117,8 +118,17 @@ export const submitQuiz = async (req, res) => {
     const scorePercentage = (score / quizzes.length) * 100;
     let feedbackMessage = "";
 
+    let certificateUrl = null;
     if (scorePercentage >= 80) {
       feedbackMessage = "Excellent travail! Vous avez un score parfait!";
+      const certificate = await Certificate.create({
+        userId,
+        quizId: quizzes[0].id,
+        dateIssued: new Date(),
+        score: score,
+      });
+
+      certificateUrl = `/certificates/${certificate.id}`;
     } else if (scorePercentage >= 50) {
       feedbackMessage =
         "Bien joué, mais il y a encore de la place pour l'amélioration.";
@@ -134,7 +144,7 @@ export const submitQuiz = async (req, res) => {
       feedbackMessage,
     });
 
-    res.json({ score, feedbackMessage });
+    res.json({ score, feedbackMessage, certificateUrl });
   } catch (error) {
     console.error("Error submitting quiz:", error);
     res.status(500).json({ error: "Internal server error" });

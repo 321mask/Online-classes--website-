@@ -9,6 +9,7 @@ const loggedUserStore = useLoggedUserStore();
 const token = loggedUserStore.loggedUser.token;
 const isSubmitting = ref(false);
 const feedbackMessage = ref("");
+const certificateUrl = ref("");
 
 // Fetch quizzes from API
 const fetchQuizzes = async () => {
@@ -41,6 +42,7 @@ const submitAnswers = async () => {
     );
     alert(`Your score: ${data.score}, ${data.feedbackMessage}`);
     feedbackMessage.value = data.feedbackMessage;
+    certificateUrl.value = data.certificateUrl || "";
     userAnswers.value = {}; // Reset after submit
   } catch (error) {
     console.error("Failed to submit answers:", error);
@@ -88,6 +90,12 @@ onMounted(fetchQuizzes);
   </div>
   <div v-if="feedbackMessage" class="feedback">
     <p>{{ feedbackMessage }}</p>
+  </div>
+  <div v-if="certificateUrl" class="certificate">
+    🎉 Félicitations ! Vous avez obtenu un certificat :
+    <a :href="certificateUrl" target="_blank" rel="noopener"
+      >Voir le certificat</a
+    >
   </div>
 </template>
 
@@ -161,6 +169,15 @@ label {
   background-color: #e7f3fe;
   border-left: 4px solid #2196f3;
   color: #0b72b9;
+  border-radius: 6px;
+}
+
+.certificate {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #d4edda;
+  border-left: 4px solid #28a745;
+  color: #155724;
   border-radius: 6px;
 }
 

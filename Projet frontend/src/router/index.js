@@ -7,29 +7,37 @@ import Course from "../views/Course.vue";
 import UsersList from "../views/UsersList.vue";
 import RegisterView from "../views/RegisterView.vue";
 import Quiz from "../components/Quiz.vue";
-import TotalRecordes from "../components/TotalRecords.vue";
+import TotalRecords from "../components/TotalRecords.vue";
 import CreateQuiz from "../views/CreateQuiz.vue";
 import UnauthorizedView from "../views/UnauthorizedView.vue";
 import LiveResults from "../components/LiveResults.vue";
+import Certificate from "../components/Certificate.vue";
 
 const routes = [
+  {
+    path: "/certificates/:id",
+    name: "Certificate",
+    component: Certificate,
+    meta: { requiresAuth: true },
+  },
   {
     path: "/create-quiz",
     name: "CreateQuiz",
     component: CreateQuiz,
     meta: { requiresAuth: true, requiresTrainer: true },
   },
-  { path: "/", component: HomeView },
+  { path: "/", name: "home", component: HomeView },
   { path: "/login", component: SigninView },
   {
     path: "/dashboard",
     component: AdminDashboard,
     meta: { requiresAdmin: true },
+    component: () => import("../views/AdminDashboard.vue"),
   },
   { path: "/register", component: RegisterView },
-  { path: "/quiz", component: Quiz },
-  { path: "/stats", component: TotalRecordes },
-  { path: "/results", component: LiveResults },
+  { path: "/quiz", name: "quiz", component: Quiz },
+  { path: "/stats", component: TotalRecords },
+  { path: "/results", name: "results", component: LiveResults },
   { path: "/users/list", name: "users-list", component: UsersList },
   { path: "/course/:id", component: Course },
   {
